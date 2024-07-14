@@ -5,8 +5,8 @@ class Stage {
   final String region;
   final String startDate;
   final String endDate;
-  final int prizeAmount;
-  final String prizeCurrency;
+  final int? prizeAmount;
+  final String? prizeCurrency;
   final String liquipedia;
   final String venue;
   final String city;

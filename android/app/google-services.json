@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "210324665863",
+    "project_id": "esports-app-816cf",
+    "storage_bucket": "esports-app-816cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210324665863:android:cb6b041fff7dd8e2ba1ca2",
+        "android_client_info": {
+          "package_name": "org.turcotte.EsportsMob"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6Bp1TzQ6or-UEKfaGWHMqbH_w5Y25J6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210324665863:android:30dcddb45893c805ba1ca2",
+        "android_client_info": {
+          "package_name": "org.turcotte.vlr.vlr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6Bp1TzQ6or-UEKfaGWHMqbH_w5Y25J6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

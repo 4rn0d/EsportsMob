@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vlr/app/rocket_league/following.dart';
 import 'package:vlr/app/rocket_league/home.dart';
-import 'package:vlr/app/rocket_league/leagues.dart';
+import 'package:vlr/app/rocket_league/region/regions.dart';
 import 'package:vlr/app/rocket_league/news.dart';
 import 'package:vlr/app/rocket_league/settings.dart';
 
@@ -24,7 +24,7 @@ class _RocketLeagueState extends State<RocketLeague> {
   final List<Widget> _screens = [
     const Home(),
     const News(),
-    const Leagues(),
+    const Regions(),
     const Following(),
     const Settings()
   ];
@@ -53,9 +53,9 @@ class _RocketLeagueState extends State<RocketLeague> {
             label: 'News',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.stadium, color: Colors.white),
-            icon: Icon(Icons.stadium_outlined),
-            label: 'Ligues',
+            selectedIcon: Icon(Icons.map, color: Colors.white),
+            icon: Icon(Icons.map_outlined),
+            label: 'Regions',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.star, color: Colors.white),

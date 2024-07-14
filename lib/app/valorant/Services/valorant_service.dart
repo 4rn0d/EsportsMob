@@ -254,6 +254,22 @@ countryToFlag(var country){
       return '🇵🇹';
     case 'flag_it':
       return '🇮🇹';
+    case 'NA':
+      return 'https://cdn3.emoji.gg/emojis/8282_North_America.png';
+    case 'EU':
+      return 'https://cdn3.emoji.gg/emojis/6895_Europe.png';
+    case 'OCE':
+      return 'https://cdn3.emoji.gg/emojis/5386_Oceania_Australia.png';
+    case 'SAM':
+      return 'https://cdn3.emoji.gg/emojis/3253_South_America.png';
+    case 'ASIA':
+      return 'https://cdn3.emoji.gg/emojis/4622_Asia.png';
+    case 'ME':
+      return 'https://cdn3.emoji.gg/emojis/8167-middle-east.png';
+    case 'AF':
+      return 'https://cdn3.emoji.gg/emojis/6578_Africa.png';
+    case 'INT':
+      return 'https://cdn3.emoji.gg/emojis/8437_earthblurpletrans.gif';
   }
 }
 

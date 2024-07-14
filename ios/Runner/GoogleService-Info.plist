@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDe-Ge6CbklG3db1qxErx7kYz2ZRk9eZbM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>210324665863</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.turcotte.esportsmob</string>
+	<key>PROJECT_ID</key>
+	<string>esports-app-816cf</string>
+	<key>STORAGE_BUCKET</key>
+	<string>esports-app-816cf.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:210324665863:ios:9ae2d30b7352c576ba1ca2</string>
+</dict>
+</plist>
