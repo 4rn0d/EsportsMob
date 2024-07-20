@@ -10,20 +10,14 @@ class Favorite extends StatefulWidget {
 }
 
 List<Team> _teams = [];
-List<Team> _favTeams = [];
 
 
 class _FavoriteState extends State<Favorite> {
+
   Future<void> toListAsync() async {
-    api.fetchTeams().then((value) {
-      setState(() {
-        _teams = value;
-        for (Team team in _teams) {
-          if(api.teamIsFavorite(team.id)){
-            _favTeams.add(team);
-          }
-        }
-      });
+    await api.getFavoriteTeams();
+    setState(() {
+      api.isLoading = false;
     });
   }
 
@@ -71,41 +65,41 @@ class _FavoriteState extends State<Favorite> {
         body: !api.isLoading ? Padding(
           padding: EdgeInsets.all(8.0),
           child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              ),
-              itemCount: _favTeams.length,
-              itemBuilder: (BuildContext context, int index) {
-                return SizedBox(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 150,
-                        height: 150,
-                        color: const Color(0xFF535c65),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Column(
-                                    children: [
-                                      SizedBox(width: 50, child: ClipRRect(borderRadius: BorderRadius.circular(50.0), child: Image.network(_favTeams[index].img))),
-                                      const Padding(padding: EdgeInsets.all(2.0)),
-                                      Text(_favTeams[index].name),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      ),
-                    ],
-                  )
-                );
-              }
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            itemCount: api.favTeams.length,
+            itemBuilder: (BuildContext context, int index) {
+              return SizedBox(
+                child: Column(
+                  children: [
+                    Container(
+                      width: 150,
+                      height: 150,
+                      color: const Color(0xFF535c65),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Column(
+                                  children: [
+                                    SizedBox(width: 50, child: ClipRRect(borderRadius: BorderRadius.circular(50.0), child: Image.network(api.favTeams[index]['img']))),
+                                    const Padding(padding: EdgeInsets.all(2.0)),
+                                    Text(api.favTeams[index]['name']),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ],
+                )
+              );
+            }
           ),
         ): const Center(child: CircularProgressIndicator(color: Color(0xffda626c),)),
       ),
@@ -174,9 +168,9 @@ class _SearchState extends State<Search> {
                                   setState(() {
                                     if(_teams[index].isFavorite){
                                       api.favTeams.remove(_teams[index].id);
-                                      for (Team team in _favTeams) {
+                                      for (Team team in api.favTeams) {
                                         if(team.id == _teams[index].id){
-                                          _favTeams.remove(team);
+                                          api.favTeams.remove(team);
                                         }
                                       }
                                     }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -14,6 +15,7 @@ var favTourny = ["Challengers League Korea", "Champions Tour EMEA"];
 var favTeams = [];
 final dio = Dio();
 bool isLoading = false;
+final db = FirebaseFirestore.instance;
 
 fetchNews() async {
   isLoading = true;
@@ -164,7 +166,20 @@ fetchTeams() async {
     final response = await dio.get('https://vlr.orlandomm.net/api/v1/teams?limit=50&region=$region');
     if (response.statusCode == 200) {
       for (var team in response.data['data']){
-        teams.add(Team.fromJson(team));
+        team['region'] = getRegionFromCountry(team['country']);
+        final ref = db.collection('games').doc('valorant').collection('teams');
+        var snapshot = await ref.get();
+        int score = 0;
+        for (var doc in snapshot.docs){
+          var data = doc.data();
+          if (data['id'] == team['id']){
+            score++;
+            break;
+          }
+        }
+        if (score == 0){
+          ref.doc(team['id']).set(team);
+        }
       }
     } else {
       throw Exception('Failed to load teams');
@@ -181,15 +196,17 @@ fetchTeams() async {
   return teams;
 }
 
-fetchTeam(String id) async {
+getTeamByRegion(String region) async {
   isLoading = true;
-  final response = await dio.get('https://vlr.orlandomm.net/api/v1/teams/$id');
-  if (response.statusCode == 200) {
-    isLoading = false;
-    return Team.fromJson(response.data['data']);
-  } else {
-    throw Exception('Failed to load teams');
+  var events = [];
+  final teamsRef = db.collection('games').doc('valorant').collection('teams');
+  var teamQuery = teamsRef.where("region", isEqualTo: region);
+  var regionTeams = await teamQuery.get();
+  for (var teamSnapshot in regionTeams.docs) {
+    events.add(teamSnapshot.data());
   }
+  isLoading = false;
+  return events;
 }
 
 countryToFlag(var country){
@@ -273,6 +290,87 @@ countryToFlag(var country){
   }
 }
 
+getRegionFromCountry(String country){
+  switch(country){
+    case 'Argentina':
+      return 'Americas';
+    case 'Australia':
+      return 'Pacific';
+    case 'Bangladesh':
+      return 'Pacific';
+    case 'Brazil':
+      return 'Americas';
+    case 'Canada':
+      return 'Americas';
+    case 'Chile':
+      return 'Americas';
+    case 'China':
+      return 'China';
+    case 'Colombia':
+      return 'Americas';
+    case 'Egypt':
+      return 'EMEA';
+    case 'Europe':
+      return 'EMEA';
+    case 'Finland':
+      return 'EMEA';
+    case 'France':
+      return 'EMEA';
+    case 'Germany':
+      return 'EMEA';
+    case 'Hong Kong':
+      return 'Pacific';
+    case 'India':
+      return 'Pacific';
+    case 'Indonesia':
+      return 'Pacific';
+    case 'International':
+      return 'Unknown';
+    case 'Italy':
+      return 'EMEA';
+    case 'Japan':
+      return 'Pacific';
+    case 'Malaysia':
+      return 'Pacific';
+    case 'Mexico':
+      return 'Americas';
+    case 'Mongolia':
+      return 'Pacific';
+    case 'Pakistan':
+      return 'Pacific';
+    case 'Philippines':
+      return 'Pacific';
+    case 'Poland':
+      return 'EMEA';
+    case 'Portugal':
+      return 'EMEA';
+    case 'Russia':
+      return 'EMEA';
+    case 'Saudi Arabia':
+      return 'EMEA';
+    case 'Singapore':
+      return 'Pacific';
+    case 'South Korea':
+      return 'Pacific';
+    case 'Spain':
+      return 'EMEA';
+    case 'Taiwan':
+      return 'Pacific';
+    case 'Thailand':
+      return 'Pacific';
+    case 'Turkey':
+      return 'EMEA';
+    case 'United Kingdom':
+      return 'EMEA';
+    case 'United States':
+      return 'Americas';
+    case 'Venezuela':
+      return 'Americas';
+    case 'Vietnam':
+      return 'Pacific';
+  }
+}
+
 isFavorite(String eventName){
   int score = 0;
   for (String favorite in favTourny){
@@ -323,8 +421,24 @@ teamIsFavorite(String id){
   return false;
 }
 
-Future<Color> getImagePalette (ImageProvider imageProvider) async {
-  final PaletteGenerator paletteGenerator = await PaletteGenerator
-      .fromImageProvider(imageProvider);
-  return paletteGenerator.dominantColor!.color;
+getFavoriteTeams() async {
+  isLoading = true;
+  final favTeamsRef = db.collection('users').doc('test').collection('favorites').doc('teams');
+  var snapshot = await favTeamsRef.get();
+  var favoriteTeams = snapshot.data();
+
+  if (favoriteTeams != null){
+    for (var teamId in favoriteTeams['ids']){
+      final teamRef = db.collection('games').doc('valorant').collection('teams').doc(teamId);
+      var team = await teamRef.get();
+      var teamData = team.data();
+      for (var temp in favTeams){
+        if (temp['id'] == teamData!['id']){
+          return;
+        }
+      }
+      favTeams.add(teamData);
+    }
+  }
+  isLoading = false;
 }

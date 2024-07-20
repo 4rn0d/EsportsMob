@@ -17,7 +17,6 @@ class _ValorantState extends State<Valorant> {
   @override
   void initState() {
     super.initState();
-
     api.fetchLiveMatches();
     api.fetchUpcomingMatches();
     api.fetchCompletedMatches();
@@ -79,8 +78,7 @@ class _ValorantState extends State<Valorant> {
       titleTextStyle: const TextStyle(color: Colors.white, fontSize: 30),
       title: const Text('Valorant'),
     ),
-    body: !api.isLoading ? _screens[_selectedIndex]:
-      const Center(child: CircularProgressIndicator(color: Color(0xffda626c),)),
+    body: !api.isLoading ? _screens[_selectedIndex]: CircularProgressIndicator(color: Color(0xffda626c))
     );
   }
 }
