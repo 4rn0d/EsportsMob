@@ -6,6 +6,7 @@ class Team {
   final String name;
   final String img;
   final String country;
+  final String region;
 
   Team({
     required this.id,
@@ -13,6 +14,7 @@ class Team {
     required this.name,
     required this.img,
     required this.country,
+    required this.region,
   });
 
   bool get isFavorite {
@@ -26,6 +28,7 @@ class Team {
       name: json['name'],
       img: json['img'],
       country: json['country'],
+      region: json['region'],
     );
   }
 
@@ -36,6 +39,7 @@ class Team {
       'name': name,
       'img': img,
       'country': country,
+      'region': region,
     };
   }
 }

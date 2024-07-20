@@ -9,8 +9,6 @@ class Favorite extends StatefulWidget {
   State<Favorite> createState() => _FavoriteState();
 }
 
-List<Team> _teams = [];
-
 
 class _FavoriteState extends State<Favorite> {
 
@@ -63,7 +61,7 @@ class _FavoriteState extends State<Favorite> {
         ),
         ],
         body: !api.isLoading ? Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -76,7 +74,7 @@ class _FavoriteState extends State<Favorite> {
                     Container(
                       width: 150,
                       height: 150,
-                      color: const Color(0xFF535c65),
+                      color: const Color(0xffda626c),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -85,9 +83,12 @@ class _FavoriteState extends State<Favorite> {
                               children: [
                                 Column(
                                   children: [
-                                    SizedBox(width: 50, child: ClipRRect(borderRadius: BorderRadius.circular(50.0), child: Image.network(api.favTeams[index]['img']))),
+                                    SizedBox(
+                                      width: 50,
+                                      child: Image.network(api.favTeams[index].img)
+                                    ),
                                     const Padding(padding: EdgeInsets.all(2.0)),
-                                    Text(api.favTeams[index]['name']),
+                                    Text(api.favTeams[index].name),
                                   ],
                                 ),
                               ],
@@ -118,6 +119,22 @@ class _SearchState extends State<Search> {
 
   final _teamController = TextEditingController();
 
+  List<Team> _teams = [];
+
+  var choice;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    choice = 'Americas';
+    api.getTeamByRegion('Americas').then((value) {
+      setState(() {
+        _teams = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,6 +157,94 @@ class _SearchState extends State<Search> {
               ),
             ),
           ),
+          Row(
+            children: [
+              Expanded(
+                child: ChoiceChip(
+                  label: const Text('Americas',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black, fontSize: 20)
+                  ),
+                  selected: choice== 'Americas',
+                  onSelected: (bool selected) {
+                    setState(() {
+                      choice= selected ? 'Americas' : null;
+                    });
+                    api.getTeamByRegion('Americas').then((value) {
+                      setState(() {
+                        _teams = value;
+                      });
+                    });
+                  },
+                  selectedColor: const Color(0xffda626c)
+                )
+              ),
+              Expanded(
+                child: ChoiceChip(
+                  label: const Text('EMEA',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.black, fontSize: 20)
+                  ),
+                  selected: choice== 'EMEA',
+                  onSelected: (bool selected) {
+                    setState(() {
+                      choice= selected ? 'EMEA' : null;
+                    });
+                    api.getTeamByRegion('EMEA').then((value) {
+                      setState(() {
+                        _teams = value;
+                      });
+                    });
+                  },
+                  selectedColor: const Color(0xffda626c)
+                )
+              ),
+              Expanded(
+                  child: ChoiceChip(
+                      label: const Text('Pacific',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.black, fontSize: 20)
+                      ),
+                      selected: choice== 'Pacific',
+                      onSelected: (bool selected) {
+                        setState(() {
+                          choice= selected ? 'Pacific' : null;
+                        });
+                        api.getTeamByRegion('Pacific').then((value) {
+                          setState(() {
+                            _teams = value;
+                          });
+                        });
+                      },
+                      selectedColor: const Color(0xffda626c)
+                  )
+              ),
+              Expanded(
+                  child: ChoiceChip(
+                      label: const Text('China',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.black, fontSize: 20)
+                      ),
+                      selected: choice== 'China',
+                      onSelected: (bool selected) {
+                        setState(() {
+                          choice= selected ? 'China' : null;
+                        });
+                        api.getTeamByRegion('China').then((value) {
+                          setState(() {
+                            _teams = value;
+                          });
+                        });
+                      },
+                      selectedColor: const Color(0xffda626c)
+                  )
+              ),
+            ]
+          ),
           Expanded(
             child: ListView.builder(
                 itemCount: _teams.length,
@@ -147,7 +252,6 @@ class _SearchState extends State<Search> {
                   return _teams[index].name.contains(_teamController.text) ? SizedBox(
                     height: 75,
                     child: Card(
-                      color: const Color(0xFF535c65),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -161,9 +265,6 @@ class _SearchState extends State<Search> {
                                 child: Text(_teams[index].name)
                             ),
                             ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xff5f6873),
-                                ),
                                 onPressed: (){
                                   setState(() {
                                     if(_teams[index].isFavorite){
@@ -175,7 +276,7 @@ class _SearchState extends State<Search> {
                                       }
                                     }
                                     else{
-                                      api.favTeams.add(_teams[index].id);
+                                      api.favTeams.add(_teams[index]);
                                     }
                                   });
                                 },

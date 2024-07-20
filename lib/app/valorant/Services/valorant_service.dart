@@ -12,7 +12,7 @@ import 'package:vlr/app/valorant/leagues.dart';
 var matchList = [];
 var matchFavList = [];
 var favTourny = ["Challengers League Korea", "Champions Tour EMEA"];
-var favTeams = [];
+List<Team> favTeams = [];
 final dio = Dio();
 bool isLoading = false;
 final db = FirebaseFirestore.instance;
@@ -198,12 +198,12 @@ fetchTeams() async {
 
 getTeamByRegion(String region) async {
   isLoading = true;
-  var events = [];
+  List<Team> events = [];
   final teamsRef = db.collection('games').doc('valorant').collection('teams');
   var teamQuery = teamsRef.where("region", isEqualTo: region);
   var regionTeams = await teamQuery.get();
   for (var teamSnapshot in regionTeams.docs) {
-    events.add(teamSnapshot.data());
+    events.add(Team.fromJson(teamSnapshot.data()));
   }
   isLoading = false;
   return events;
@@ -410,8 +410,8 @@ eventToLeague(Event event){
 
 teamIsFavorite(String id){
   int score = 0;
-  for (String favorite in favTeams){
-    if(id == favorite){
+  for (Team favorite in favTeams){
+    if(id == favorite.id){
       score++;
     }
   }
@@ -431,9 +431,9 @@ getFavoriteTeams() async {
     for (var teamId in favoriteTeams['ids']){
       final teamRef = db.collection('games').doc('valorant').collection('teams').doc(teamId);
       var team = await teamRef.get();
-      var teamData = team.data();
+      var teamData = Team.fromJson(team.data()!);
       for (var temp in favTeams){
-        if (temp['id'] == teamData!['id']){
+        if (temp.id == teamData.id){
           return;
         }
       }
