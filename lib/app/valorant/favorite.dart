@@ -55,15 +55,11 @@ class _FavoriteState extends State<Favorite> {
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
                   barrierColor: Colors.black.withOpacity(0.4),
                   context: context,
-                  builder: (BuildContext context) {
-                    return Container(
-                      height: 900,
-                      color: const Color(0xFF2f3337),
-                      child: Search(),
-                    );
-                  },
+                  builder: (context) => Search()).then((value) {
+                    setState(() {});
+                  }
                 );
-              },
+              }
             ),
           ],
         ),
@@ -277,11 +273,13 @@ class _SearchState extends State<Search> {
                                   if (_teams[index].isFavorite){
                                     setState(() {
                                       api.removeFavorite(_teams[index]);
+                                      Navigator.pop(context);
                                     });
                                   }
                                   else{
                                     setState(() {
                                       api.addFavorite(_teams[index]);
+                                      Navigator.pop(context);
                                     });
                                   }
                                 },
