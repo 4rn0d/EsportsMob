@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 
-import '../models/event.dart';
 
 bool isLoading = false;
 final db = FirebaseFirestore.instance;
@@ -85,7 +84,7 @@ fetchEvents() async {
 }
 
 updateFavorite(String id) async {
-  final ref = await db.collection('users').doc('test').collection('favorites').doc('regions');
+  final ref = db.collection('users').doc('test').collection('favorites').doc('regions');
   if (await isEventFavorite(id)){
     ref.update({
       'ids': FieldValue.arrayRemove([id])

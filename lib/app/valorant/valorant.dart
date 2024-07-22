@@ -21,6 +21,7 @@ class _ValorantState extends State<Valorant> {
     api.fetchUpcomingMatches();
     api.fetchCompletedMatches();
     api.fetchTeams();
+    api.fetchEvents();
   }
 
   int _selectedIndex = 0;
@@ -78,7 +79,7 @@ class _ValorantState extends State<Valorant> {
       titleTextStyle: const TextStyle(color: Colors.white, fontSize: 30),
       title: const Text('Valorant'),
     ),
-    body: !api.isLoading ? _screens[_selectedIndex]: CircularProgressIndicator(color: Color(0xffda626c))
+    body: !api.isLoading ? _screens[_selectedIndex]: const CircularProgressIndicator(color: Color(0xffda626c))
     );
   }
 }

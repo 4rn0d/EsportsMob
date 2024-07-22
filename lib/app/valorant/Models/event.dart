@@ -5,11 +5,12 @@ class Event {
   final String status;
   final String prizepool;
   final String dates;
+  final String season;
   final String country;
   final String img;
 
   bool get isFavorite {
-    return service.isFavorite(name);
+    return service.isTeamFavorite(name);
   }
 
   String get league {
@@ -22,6 +23,7 @@ class Event {
     required this.status,
     required this.prizepool,
     required this.dates,
+    required this.season,
     required this.country,
     required this.img,
   });
@@ -33,6 +35,7 @@ class Event {
       status: json['status'],
       prizepool: json['prizepool'],
       dates: json['dates'],
+      season: json['season'],
       country: json['country'],
       img: json['img'],
     );
@@ -45,6 +48,7 @@ class Event {
       'status': status,
       'prizepool': prizepool,
       'dates': dates,
+      'season': season,
       'country': country,
       'img': img,
     };

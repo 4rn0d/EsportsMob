@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vlr/app/rocket_league/region/region_detail.dart';
-import 'package:vlr/app/rocket_league/services/api_service.dart' as api;
 
 import '../../valorant/Services/valorant_service.dart';
 
@@ -50,9 +49,9 @@ class _RegionsState extends State<Regions> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       SizedBox(
-                        child: Image.network(countryToFlag(regions[index])),
                         width: 100,
                         height: 100,
+                        child: Image.network(countryToFlag(regions[index])),
                       ),
                       Text(regions[index]),
                     ],

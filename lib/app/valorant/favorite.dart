@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:vlr/app/valorant/Models/team.dart';
 import 'package:vlr/app/valorant/Services/valorant_service.dart' as api;
+import 'Services/data_service.dart' as data;
 
 class Favorite extends StatefulWidget {
   const Favorite({super.key});
@@ -55,7 +54,7 @@ class _FavoriteState extends State<Favorite> {
                   shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
                   barrierColor: Colors.black.withOpacity(0.4),
                   context: context,
-                  builder: (context) => Search()).then((value) {
+                  builder: (context) => const Search()).then((value) {
                     setState(() {});
                   }
                 );
@@ -70,7 +69,7 @@ class _FavoriteState extends State<Favorite> {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
             ),
-            itemCount: api.favTeams.length,
+            itemCount: data.favTeams.length,
             itemBuilder: (BuildContext context, int index) {
               return SizedBox(
                 child: Column(
@@ -89,10 +88,10 @@ class _FavoriteState extends State<Favorite> {
                                   children: [
                                     SizedBox(
                                       width: 50,
-                                      child: Image.network(api.favTeams[index].img)
+                                      child: Image.network(data.favTeams[index].img)
                                     ),
                                     const Padding(padding: EdgeInsets.all(2.0)),
-                                    Text(api.favTeams[index].name),
+                                    Text(data.favTeams[index].name),
                                   ],
                                 ),
                               ],
@@ -272,13 +271,13 @@ class _SearchState extends State<Search> {
                                 onPressed: (){
                                   if (_teams[index].isFavorite){
                                     setState(() {
-                                      api.removeFavorite(_teams[index]);
+                                      api.removeFavoriteTeam(_teams[index]);
                                       Navigator.pop(context);
                                     });
                                   }
                                   else{
                                     setState(() {
-                                      api.addFavorite(_teams[index]);
+                                      api.addFavoriteTeam(_teams[index]);
                                       Navigator.pop(context);
                                     });
                                   }

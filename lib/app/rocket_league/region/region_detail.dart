@@ -27,7 +27,7 @@ class _RegionDetailState extends State<RegionDetail> {
     });
   }
 
-  List<DropdownMenuEntry<dynamic>> _dropDownMenuEntries = [const DropdownMenuEntry(label: '2024', value: 2024), const DropdownMenuEntry(label: '2023', value: 2023)];
+  final List<DropdownMenuEntry<dynamic>> _dropDownMenuEntries = [const DropdownMenuEntry(label: '2024', value: 2024), const DropdownMenuEntry(label: '2023', value: 2023)];
 
   @override
   void initState() {

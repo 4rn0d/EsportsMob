@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:vlr/app/valorant/Services/valorant_service.dart' as service;
 class Team {
   final String id;

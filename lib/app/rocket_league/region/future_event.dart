@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:vlr/app/rocket_league/services/api_service.dart';
 
@@ -15,7 +14,7 @@ class FutureEvent extends StatefulWidget {
 class _FutureEventState extends State<FutureEvent> {
 
   var _regionEvents = [];
-  var _futureEvents = [];
+  final _futureEvents = [];
   String _id = '';
 
   getFutureEvent() {

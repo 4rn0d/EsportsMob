@@ -1,18 +1,12 @@
-import 'dart:convert';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:palette_generator/palette_generator.dart';
 import 'package:vlr/app/valorant/Models/event.dart';
+import 'package:vlr/app/valorant/Models/league.dart';
 import 'package:vlr/app/valorant/Models/team.dart';
-import 'package:vlr/app/valorant/leagues.dart';
 
-var matchList = [];
-var matchFavList = [];
-var favTourny = ["Challengers League Korea", "Champions Tour EMEA"];
-List<Team> favTeams = [];
+import 'data_service.dart' as data;
+
+
 final dio = Dio();
 bool isLoading = false;
 final db = FirebaseFirestore.instance;
@@ -42,19 +36,19 @@ fetchCompletedMatches() async {
     for (int i = 0; i < matches.length; i++) {
       if (!matches[i]['time_completed'].toString().contains('1d')) {
         matches[i]['category'] = 0;
-        if(isFavorite(matches[i]["tournament_name"])){
-          matchFavList.add(matches[i]);
+        if(isTeamFavorite(matches[i]["tournament_name"])){
+          data.matchFavList.add(matches[i]);
           isLoading = false;
-          return matchFavList;
+          return data.matchFavList;
         }
-        matchList.add(matches[i]);
+        data.matchList.add(matches[i]);
       } else {
         isLoading = false;
-        return matchList;
+        return data.matchList;
       }
     }
     isLoading = false;
-    return matchList;
+    return data.matchList;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -70,15 +64,15 @@ fetchUpcomingMatches() async {
     matches += response.data['data']['segments'];
     for (int i = 0; i < matches.length; i++) {
       matches[i]['category'] = 1;
-      if(isFavorite(matches[i]["match_event"])){
-        matchFavList.add(matches[i]);
+      if(isTeamFavorite(matches[i]["match_event"])){
+        data.matchFavList.add(matches[i]);
         isLoading = false;
-        return matchFavList;
+        return data.matchFavList;
       }
-      matchList.add(matches[i]);
+      data.matchList.add(matches[i]);
     }
     isLoading = false;
-    return matchList;
+    return data.matchList;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -94,15 +88,15 @@ fetchLiveMatches() async {
     matches += response.data['data']['segments'];
     for (int i = 0; i < matches.length; i++) {
       matches[i]['category'] = 2;
-      if(isFavorite(matches[i]["match_event"])){
-        matchFavList.add(matches[i]);
+      if(isTeamFavorite(matches[i]["match_event"])){
+        data.matchFavList.add(matches[i]);
         isLoading = false;
-        return matchFavList;
+        return data.matchFavList;
       }
-      matchList.add(matches[i]);
+      data.matchList.add(matches[i]);
     }
     isLoading = false;
-    return matchList;
+    return data.matchList;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -122,27 +116,51 @@ fetchArticles(var articleId) async {
   return text;
 }
 
+isInList(List<League> list, League league){
+  int score = 0;
+  for (League tempLeague in list){
+    if(league.id == tempLeague.id){
+      score++;
+    }
+  }
+  if (score > 0){
+    return true;
+  }
+  return false;
+}
+
 fetchEvents() async {
   isLoading = true;
   final dio = Dio();
-  List<Event> tempEvents = [];
+  List<Event> events = [];
+  List<League> leagues = [];
   for (int i = 1; i <= 4; i++){
     final response = await dio.get('https://vlr.orlandomm.net/api/v1/events?page=$i');
     if (response.statusCode == 200) {
-      for (var event in response.data['data']){
-        tempEvents.add(Event.fromJson(event));
-      }
-    }
-  }
-  List<Event> events = [];
-  if (tempEvents.isNotEmpty) {
-    for (var event in tempEvents){
-      String eventName = event.name;
-
-      if (eventName.contains('Champions Tour') || eventName.contains('Challengers League') || eventName.contains('Game Changers')){
-        if (event.status != "completed"){
-          eventToLeague(event);
-          events.add(event);
+      for (var jsonEvent in response.data['data']){
+        jsonEvent['season'] = jsonEvent['name'].split(':')[0].replaceAll(RegExp(r'[^0-9]'),'');
+        Event event = Event.fromJson(jsonEvent);
+        if (event.name.contains('Champions Tour') || event.name.contains('Challengers League')){
+          if (event.season == '2024'){
+            events.add(event);
+            var league = League.fromJson(jsonEvent);
+            if(!isInList(leagues, league)){
+              leagues.add(league);
+              final ref = db.collection('games').doc('valorant').collection('leagues');
+              var snapshot = await ref.get();
+              int score = 0;
+              for (var doc in snapshot.docs){
+                var data = doc.data();
+                if (data['id'] == league.id){
+                  score++;
+                  break;
+                }
+              }
+              if (score == 0){
+                ref.doc(league.id).set(league.toJson());
+              }
+            }
+          }
         }
       }
     }
@@ -154,8 +172,9 @@ fetchEvents() async {
     }
     return -1;
   });
+  getFavoriteLeagues();
+  data.leagues = leagues;
   isLoading = false;
-  return events;
 }
 
 fetchTeams() async {
@@ -185,7 +204,6 @@ fetchTeams() async {
       throw Exception('Failed to load teams');
     }
   }
-  isLoading = false;
   teams.sort((a, b) => a.name.compareTo(b.name));
   teams.sort((a, b) {
     if(b.isFavorite) {
@@ -193,20 +211,30 @@ fetchTeams() async {
     }
     return -1;
   });
+  getFavoriteTeams();
+  isLoading = false;
   return teams;
 }
 
 getTeamByRegion(String region) async {
   isLoading = true;
-  List<Team> events = [];
+  List<Team> teams = [];
   final teamsRef = db.collection('games').doc('valorant').collection('teams');
   var teamQuery = teamsRef.where("region", isEqualTo: region);
   var regionTeams = await teamQuery.get();
   for (var teamSnapshot in regionTeams.docs) {
-    events.add(Team.fromJson(teamSnapshot.data()));
+    teams.add(Team.fromJson(teamSnapshot.data()));
   }
+
+  teams.sort((a, b) => a.name.compareTo(b.name));
+  teams.sort((a, b) {
+    if(b.isFavorite) {
+      return 1;
+    }
+    return -1;
+  });
   isLoading = false;
-  return events;
+  return teams;
 }
 
 countryToFlag(var country){
@@ -371,10 +399,10 @@ getRegionFromCountry(String country){
   }
 }
 
-isFavorite(String eventName){
+isTeamFavorite(String eventId){
   int score = 0;
-  for (String favorite in favTourny){
-    if(eventName.contains(favorite)){
+  for (League favorite in data.favLeagues){
+    if(eventId == favorite.id){
       score++;
     }
   }
@@ -399,6 +427,9 @@ eventToLeague(Event event){
       }
       else{
         league = leagueName.replaceAll("$year ", "");
+        if (league == 'Challengers League Northern Europe'){
+          league = 'Challengers League North';
+        }
       }
     }
     else if (!leagueName.contains("20")) {
@@ -410,7 +441,7 @@ eventToLeague(Event event){
 
 teamIsFavorite(String id){
   int score = 0;
-  for (Team favorite in favTeams){
+  for (Team favorite in data.favTeams){
     if(id == favorite.id){
       score++;
     }
@@ -432,35 +463,79 @@ getFavoriteTeams() async {
       final teamRef = db.collection('games').doc('valorant').collection('teams').doc(teamId);
       var team = await teamRef.get();
       var teamData = Team.fromJson(team.data()!);
-      for (var temp in favTeams){
+      for (var temp in data.favTeams){
         if (temp.id == teamData.id){
           return;
         }
       }
-      favTeams.add(teamData);
+      data.favTeams.add(teamData);
     }
   }
   isLoading = false;
 }
 
-removeFavorite(Team team) async {
+getFavoriteLeagues() async {
+  isLoading = true;
+  final favLEaguesRef = db.collection('users').doc('test').collection('favorites').doc('leagues');
+  var snapshot = await favLEaguesRef.get();
+  var favoriteLeagues = snapshot.data();
+
+  if (favoriteLeagues != null){
+    for (var leagueId in favoriteLeagues['ids']){
+      final leagueRef = db.collection('games').doc('valorant').collection('teams').doc(leagueId);
+      var league = await leagueRef.get();
+      var leagueData = League.fromJson(league.data()!);
+      for (var temp in data.favLeagues){
+        if (temp.id == leagueData.id){
+          return;
+        }
+      }
+      data.favLeagues.add(leagueData);
+    }
+  }
+  isLoading = false;
+}
+
+removeFavoriteTeam(Team team) async {
   final favTeamsRef = db.collection('users').doc('test').collection('favorites').doc('teams');
   favTeamsRef.update({
     'ids': FieldValue.arrayRemove([team.id])
   });
   var tempTeamId = 999;
-  for (int i = 0; i < favTeams.length; i++){
-    if (favTeams[i].id == team.id){
+  for (int i = 0; i < data.favTeams.length; i++){
+    if (data.favTeams[i].id == team.id){
       tempTeamId = i;
     }
   }
-  favTeams.removeAt(tempTeamId);
+  data.favTeams.removeAt(tempTeamId);
 }
 
-addFavorite(Team team) async{
+addFavoriteTeam(Team team) async{
   final favTeamsRef = db.collection('users').doc('test').collection('favorites').doc('teams');
   favTeamsRef.update({
     'ids': FieldValue.arrayUnion([team.id])
   });
-  favTeams.add(team);
+  data.favTeams.add(team);
+}
+
+removeFavoriteLeague(League league) async {
+  final favLeaguesRef = db.collection('users').doc('test').collection('favorites').doc('leagues');
+  favLeaguesRef.update({
+    'ids': FieldValue.arrayRemove([league.id])
+  });
+  var tempLeagueId = 999;
+  for (int i = 0; i < data.favLeagues.length; i++){
+    if (data.favLeagues[i].id == league.id){
+      tempLeagueId = i;
+    }
+  }
+  data.favLeagues.removeAt(tempLeagueId);
+}
+
+addFavoriteLeague(League league) async{
+  final favLeaguesRef = db.collection('users').doc('test').collection('favorites').doc('leagues');
+  favLeaguesRef.update({
+    'ids': FieldValue.arrayUnion([league.id])
+  });
+  data.favLeagues.add(league);
 }

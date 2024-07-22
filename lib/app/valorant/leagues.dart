@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:vlr/app/valorant/Models/event.dart';
+import 'package:vlr/app/valorant/Services/data_service.dart' as data;
 import 'package:vlr/app/valorant/Services/valorant_service.dart' as api;
+
 
 class Leagues extends StatefulWidget {
   const Leagues({super.key});
@@ -11,12 +12,13 @@ class Leagues extends StatefulWidget {
 
 class _LeaguesState extends State<Leagues> {
 
-  List<Event> _leagues = [];
-
   Future<void> toListAsync() async {
-    api.fetchEvents().then((value) {
-      setState(() {
-        _leagues = value;
+    setState(() {
+      data.leagues.sort((a, b) {
+        if(b.isFavorite) {
+          return 1;
+        }
+        return -1;
       });
     });
   }
@@ -33,31 +35,39 @@ class _LeaguesState extends State<Leagues> {
       body: !api.isLoading ? Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView.builder(
-          itemCount: _leagues.length,
+          itemCount: data.leagues.length,
           itemBuilder: (BuildContext context, int index) {
-            return Container(
+            return SizedBox(
               height: 75,
               child: Card(
-                color: Color(0xFF535c65),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
                       SizedBox(
                         width: 40,
-                        child: Image.network(_leagues[index].img)
+                        child: Image.network(data.leagues[index].img)
                       ),
-                      Padding(padding: EdgeInsets.all(8.0)),
+                      const Padding(padding: EdgeInsets.all(8.0)),
                       Expanded(
-                        child: Text(_leagues[index].league)
+                        child: Text(data.leagues[index].name)
                       ),
                       TextButton(
                         onPressed: (){
-                          !_leagues[index].isFavorite;
+                          if (data.leagues[index].isFavorite){
+                            setState(() {
+                              api.removeFavoriteLeague(data.leagues[index]);
+                            });
+                          }
+                          else{
+                            setState(() {
+                              api.addFavoriteLeague(data.leagues[index]);
+                            });
+                          }
                         },
-                        child: !_leagues[index].isFavorite ?
-                          const Icon(Icons.star_outline, color: Colors.white,):
-                          const Icon(Icons.star, color: Colors.white,)
+                        child: !data.leagues[index].isFavorite ?
+                          const Icon(Icons.star_outline, color: Colors.black,):
+                          const Icon(Icons.star, color: Colors.black,)
                       )
                     ],
                   ),

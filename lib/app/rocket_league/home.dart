@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vlr/app/rocket_league/models/event.dart';
 import 'package:vlr/app/rocket_league/services/api_service.dart';
 
 class Home extends StatefulWidget {
