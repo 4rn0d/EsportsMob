@@ -1,6 +1,6 @@
-# vlr
+# EsportsMob
 
-A mobile app for the vlr.gg website
+A mobile app replicating the FotMob app for esports results and information using websites such as vlr.gg
 
 ## Getting Started
 
