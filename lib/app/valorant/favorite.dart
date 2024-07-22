@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vlr/app/valorant/Models/team.dart';
 import 'package:vlr/app/valorant/Services/valorant_service.dart' as api;
 
@@ -17,6 +19,10 @@ class _FavoriteState extends State<Favorite> {
     setState(() {
       api.isLoading = false;
     });
+  }
+
+  refresh() {
+    setState(() {});
   }
 
   @override
@@ -46,12 +52,14 @@ class _FavoriteState extends State<Favorite> {
               icon: const Icon(Icons.add_circle_outline, color: Color(0xffda626c)),
               onPressed: () {
                 showModalBottomSheet(
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+                  barrierColor: Colors.black.withOpacity(0.4),
                   context: context,
                   builder: (BuildContext context) {
                     return Container(
                       height: 900,
                       color: const Color(0xFF2f3337),
-                      child: const Search(),
+                      child: Search(),
                     );
                   },
                 );
@@ -266,19 +274,16 @@ class _SearchState extends State<Search> {
                             ),
                             ElevatedButton(
                                 onPressed: (){
-                                  setState(() {
-                                    if(_teams[index].isFavorite){
-                                      api.favTeams.remove(_teams[index].id);
-                                      for (Team team in api.favTeams) {
-                                        if(team.id == _teams[index].id){
-                                          api.favTeams.remove(team);
-                                        }
-                                      }
-                                    }
-                                    else{
-                                      api.favTeams.add(_teams[index]);
-                                    }
-                                  });
+                                  if (_teams[index].isFavorite){
+                                    setState(() {
+                                      api.removeFavorite(_teams[index]);
+                                    });
+                                  }
+                                  else{
+                                    setState(() {
+                                      api.addFavorite(_teams[index]);
+                                    });
+                                  }
                                 },
                                 child: !_teams[index].isFavorite ?
                                 const Text('Follow', style: TextStyle(color: Color(0xffda626c)),):

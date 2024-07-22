@@ -442,3 +442,25 @@ getFavoriteTeams() async {
   }
   isLoading = false;
 }
+
+removeFavorite(Team team) async {
+  final favTeamsRef = db.collection('users').doc('test').collection('favorites').doc('teams');
+  favTeamsRef.update({
+    'ids': FieldValue.arrayRemove([team.id])
+  });
+  var tempTeamId = 999;
+  for (int i = 0; i < favTeams.length; i++){
+    if (favTeams[i].id == team.id){
+      tempTeamId = i;
+    }
+  }
+  favTeams.removeAt(tempTeamId);
+}
+
+addFavorite(Team team) async{
+  final favTeamsRef = db.collection('users').doc('test').collection('favorites').doc('teams');
+  favTeamsRef.update({
+    'ids': FieldValue.arrayUnion([team.id])
+  });
+  favTeams.add(team);
+}
