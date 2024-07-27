@@ -157,7 +157,13 @@ fetchEvents() async {
                 }
               }
               if (score == 0){
-                ref.doc(league.id).set(league.toJson());
+                var jsonLeague = league.toJson();
+                try {
+                  ref.doc(league.id).set(jsonLeague);
+                }
+                catch(e){
+                  print(e);
+                }
               }
             }
           }
