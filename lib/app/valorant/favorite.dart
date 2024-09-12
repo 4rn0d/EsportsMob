@@ -77,7 +77,9 @@ class _FavoriteState extends State<Favorite> {
                     Container(
                       width: 150,
                       height: 150,
-                      color: const Color(0xffda626c),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Color(0xffda626c))
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(

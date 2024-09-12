@@ -193,18 +193,16 @@ fetchTeams() async {
       for (var team in response.data['data']){
         team['region'] = getRegionFromCountry(team['country']);
         final ref = db.collection('games').doc('valorant').collection('teams');
-        var snapshot = await ref.get();
-        int score = 0;
-        for (var doc in snapshot.docs){
-          var data = doc.data();
-          if (data['id'] == team['id']){
-            score++;
-            break;
-          }
-        }
-        if (score == 0){
-          ref.doc(team['id']).set(team);
-        }
+        final query = ref.where("id", isEqualTo: team['id']);
+        query.get().then(
+            (querySnapshot) {
+              for (var docSnapshot in querySnapshot.docs) {
+                if (!docSnapshot.exists){
+                  ref.doc(team['id']).set(team);
+                }
+              }
+            }
+        );
       }
     } else {
       throw Exception('Failed to load teams');
@@ -426,10 +424,15 @@ eventToLeague(Event event){
   String league = "";
   for (String year in split){
     if (year.contains("20")){
+      if(eventName.contains("Ascension")){
+        String region = eventName.split(':')[1].split(' ')[1];
+        league += "$leagueName : Ascension $region";
+        league = league.replaceAll("$year ", "");
+      }
       if (eventName.contains(": EMEA") || eventName.contains(": Americas") || eventName.contains(": Pacific") || eventName.contains(": China")){
         String region = eventName.split(':')[1].split(' ')[1];
-          league += "$leagueName : $region";
-          league = league.replaceAll("$year ", "");
+        league += "$leagueName : $region";
+        league = league.replaceAll("$year ", "");
       }
       else{
         league = leagueName.replaceAll("$year ", "");
